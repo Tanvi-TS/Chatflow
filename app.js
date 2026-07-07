@@ -15,6 +15,24 @@ connectDB();
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
 app.use(express.static(path.join(__dirname, "public")));
+const session = require("express-session");
+const flash = require("connect-flash");
+
+app.use(
+    session({
+        secret: "chatflow-secret",
+        resave: false,
+        saveUninitialized: false,
+    })
+);
+
+app.use(flash());
+
+app.use((req, res, next) => {
+    res.locals.success = req.flash("success");
+    res.locals.error = req.flash("error");
+    next();
+});
 
 // EJS Layouts
 app.use(expressLayouts);

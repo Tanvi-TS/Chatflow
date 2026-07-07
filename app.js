@@ -2,6 +2,7 @@ const express = require("express");
 const path = require("path");
 const dotenv = require("dotenv");
 const expressLayouts = require("express-ejs-layouts");
+const cookieParser = require("cookie-parser");
 
 dotenv.config();
 
@@ -14,6 +15,7 @@ connectDB();
 // Middleware
 app.use(express.urlencoded({ extended: true }));
 app.use(express.json());
+app.use(cookieParser());
 app.use(express.static(path.join(__dirname, "public")));
 const session = require("express-session");
 const flash = require("connect-flash");

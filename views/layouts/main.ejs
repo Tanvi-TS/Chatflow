@@ -5,11 +5,18 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ChatFlow</title>
 
-    <link rel="stylesheet" href="/css/style.css">
+    <link href="/css/style.css" rel="stylesheet">
 </head>
-<body>
 
-    <%- body %>
+<body class="bg-green-50 text-gray-800 flex flex-col min-h-screen">
+
+    <%- include("../partials/navbar") %>
+
+    <main class="flex-grow">
+        <%- body %>
+    </main>
+
+    <%- include("../partials/footer") %>
 
 </body>
 </html>

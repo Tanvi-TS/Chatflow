@@ -29,6 +29,16 @@ app.get("/", (req, res) => {
     res.render("index");
 });
 
+//Login Route
+app.get("/login", (req, res) => {
+    res.render("login");
+});
+
+// Register Route
+app.get("/register", (req, res) => {
+    res.render("register");
+});
+
 const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {

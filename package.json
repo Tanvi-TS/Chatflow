@@ -1,0 +1,31 @@
+{
+  "name": "chatflow",
+  "version": "1.0.0",
+  "description": "A real-time chat application built with MERN and Socket.IO.",
+  "main": "index.js",
+  "scripts": {
+    "start": "node app.js",
+    "dev": "nodemon app.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Tanvi-TS/Chatflow.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/Tanvi-TS/Chatflow/issues"
+  },
+  "homepage": "https://github.com/Tanvi-TS/Chatflow#readme",
+  "dependencies": {
+    "dotenv": "^17.4.2",
+    "ejs": "^6.0.1",
+    "express": "^5.2.1",
+    "express-ejs-layouts": "^2.5.1",
+    "mongoose": "^9.7.4"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.14"
+  }
+}

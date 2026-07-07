@@ -24,20 +24,11 @@ app.set("view engine", "ejs");
 app.set("views", path.join(__dirname, "views"));
 app.set("layout", "layouts/main");
 
-// Home Route
-app.get("/", (req, res) => {
-    res.render("index");
-});
+const indexRoutes = require("./routes/indexRoutes");
+const authRoutes = require("./routes/authRoutes");
 
-//Login Route
-app.get("/login", (req, res) => {
-    res.render("login");
-});
-
-// Register Route
-app.get("/register", (req, res) => {
-    res.render("register");
-});
+app.use("/", indexRoutes);
+app.use("/", authRoutes);
 
 const PORT = process.env.PORT || 3000;
 

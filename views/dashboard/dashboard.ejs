@@ -1,0 +1,25 @@
+<div class="min-h-screen bg-slate-50">
+
+    <div class="flex h-screen overflow-hidden">
+
+        <!-- Sidebar -->
+        <aside class="w-full md:w-80 lg:w-96 flex-shrink-0 border-r border-slate-200 bg-white">
+            <%- include("./dashboardSidebar") %>
+        </aside>
+
+        <!-- Main Area -->
+        <main class="hidden md:flex flex-1 flex-col bg-white">
+
+            <!-- Header -->
+            <%- include("./dashboardHeader") %>
+
+            <!-- Chat / Empty State -->
+            <div class="flex-1">
+                <%- include("./chatWindow") %>
+            </div>
+
+        </main>
+
+    </div>
+
+</div>

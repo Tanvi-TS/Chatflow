@@ -1,0 +1,21 @@
+<div class="h-full overflow-y-auto bg-slate-50 px-5 py-6">
+
+    <% if (messages && messages.length > 0) { %>
+
+        <div class="space-y-3">
+
+            <% messages.forEach(message => { %>
+
+                <%- include("./messageBubble", { message, user }) %>
+
+            <% }) %>
+
+        </div>
+
+    <% } else { %>
+
+        <%- include("./emptyChat", { receiver }) %>
+
+    <% } %>
+
+</div>

@@ -1,42 +1,74 @@
-<nav class="bg-white shadow-md">
+<nav class="sticky top-0 z-50 bg-white/80 backdrop-blur-lg border-b border-slate-200">
 
-    <div class="max-w-7xl mx-auto px-6 py-4 flex justify-between items-center">
+    <div class="max-w-7xl mx-auto px-6">
 
-        <h1 class="text-3xl font-bold text-green-600">
-            ChatFlow
-        </h1>
+        <div class="flex items-center justify-between h-20">
 
-        <div class="space-x-8 font-medium hidden md:flex">
+            <!-- Logo -->
 
-            <a href="/" class="hover:text-green-600 transition">
-                Home
-            </a>
+            <a href="/" class="flex items-center gap-3">
 
-            <a href="#features" class="hover:text-green-600 transition">
-                Features
-            </a>
+                <div class="w-11 h-11 rounded-2xl bg-indigo-600 text-white flex items-center justify-center text-xl font-bold shadow-md">
 
-            <a href="#" class="hover:text-green-600 transition">
-                About
-            </a>
+                    C
 
-        </div>
+                </div>
 
-        <div class="space-x-3">
+                <div>
 
-            <a href="/login"
-               class="px-5 py-2 rounded-lg border border-green-600 text-green-600 hover:bg-green-100 transition">
+                    <h1 class="text-2xl font-extrabold text-slate-800">
 
-                Login
+                        ChatFlow
 
-            </a>
+                    </h1>
 
-            <a href="/register"
-               class="px-5 py-2 rounded-lg bg-green-600 text-white hover:bg-green-700 transition">
+                    <p class="text-xs text-slate-500">
 
-                Register
+                        Connect. Chat. Collaborate.
+
+                    </p>
+
+                </div>
 
             </a>
+
+            <!-- Navigation -->
+
+            <div class="hidden md:flex items-center gap-10 font-medium text-slate-600">
+
+                <a href="/" class="hover:text-indigo-600 transition">
+                    Home
+                </a>
+
+                <a href="#features" class="hover:text-indigo-600 transition">
+                    Features
+                </a>
+
+                <a href="#" class="hover:text-indigo-600 transition">
+                    About
+                </a>
+
+            </div>
+
+            <!-- Buttons -->
+
+            <div class="flex items-center gap-3">
+
+                <a
+                    href="/login"
+                    class="px-5 py-2.5 rounded-xl border border-slate-300 text-slate-700 hover:bg-slate-100 transition font-medium"
+                >
+                    Login
+                </a>
+
+                <a
+                    href="/register"
+                    class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-700 text-white transition shadow-md font-medium"
+                >
+                    Get Started
+                </a>
+
+            </div>
 
         </div>
 

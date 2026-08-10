@@ -5,19 +5,11 @@ const User = require("../models/User");
 // Render Pages
 
 exports.getLogin = (req, res) => {
-  res.render("login");
+  res.render("auth/login");
 };
 
 exports.getRegister = (req, res) => {
-  res.render("register");
-};
-
-exports.getDashboard = async (req, res) => {
-    const user = await User.findById(req.user.userId);
-
-    res.render("dashboard", {
-        user,
-    });
+  res.render("auth/register");
 };
 
 // Register User
@@ -114,4 +106,29 @@ exports.logoutUser = (req, res) => {
 
     res.redirect("/login");
 
+};
+
+exports.getDashboard = async (req, res) => {
+    try {
+
+        const user = await User.findById(req.user.userId);
+
+        const users = await User.find({
+            _id: { $ne: req.user.userId }
+        });
+
+        res.render("dashboard/dashboard", {
+            user,
+            users
+        });
+
+    } catch (error) {
+
+        console.log(error);
+
+        req.flash("error", "Something went wrong.");
+
+        res.redirect("/login");
+
+    }
 };

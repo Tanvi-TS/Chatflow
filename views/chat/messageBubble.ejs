@@ -1,0 +1,45 @@
+<% if (message.sender._id.toString() === user._id.toString()) { %>
+
+    <!-- My Message -->
+    <div class="flex justify-end">
+
+        <div class="max-w-xs rounded-2xl rounded-br-md bg-indigo-600 px-4 py-2.5 text-sm text-white shadow-sm">
+
+            <p class="break-words">
+                <%= message.text %>
+            </p>
+
+            <p class="mt-1 text-right text-[10px] text-indigo-100">
+                <%= new Date(message.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }) %>
+            </p>
+
+        </div>
+
+    </div>
+
+<% } else { %>
+
+    <!-- Receiver Message -->
+    <div class="flex justify-start">
+
+        <div class="max-w-xs rounded-2xl rounded-bl-md bg-white px-4 py-2.5 text-sm text-slate-700 shadow-sm ring-1 ring-slate-200">
+
+            <p class="break-words">
+                <%= message.text %>
+            </p>
+
+            <p class="mt-1 text-right text-[10px] text-slate-400">
+                <%= new Date(message.createdAt).toLocaleTimeString([], {
+                    hour: "2-digit",
+                    minute: "2-digit"
+                }) %>
+            </p>
+
+        </div>
+
+    </div>
+
+<% } %>

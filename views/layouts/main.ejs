@@ -1,49 +1,107 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
+
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <meta
+        name="viewport"
+        content="width=device-width, initial-scale=1.0"
+    >
+
     <title>ChatFlow</title>
 
     <link href="/css/style.css" rel="stylesheet">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+
+    <link
+        rel="preconnect"
+        href="https://fonts.gstatic.com"
+        crossorigin
+    >
+
+    <link
+        href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet"
+    >
+
 </head>
 
-<body class="bg-green-50 text-gray-800 flex flex-col min-h-screen">
 
-    <%- include("../partials/navbar") %>
-    <% if(success.length > 0){ %>
+<body class="min-h-screen font-sans">
 
-    <div class="max-w-4xl mx-auto mt-5">
+    <% 
+        const isAppPage =
+            typeof currentPath !== "undefined" &&
+            (
+                currentPath.startsWith("/dashboard") ||
+                currentPath.startsWith("/chat") ||
+                currentPath.startsWith("/profile") ||
+                currentPath.startsWith("/settings")
+            );
+    %>
 
-    <div class="bg-green-100 text-green-700 p-4 rounded-lg">
 
-        <%= success %>
+    <!-- Navbar -->
+    <% if (!isAppPage) { %>
 
-    </div>
-
-    </div>
+        <%- include("../partials/navbar") %>
 
     <% } %>
+
+
+    <!-- Flash Messages -->
+
+    <% if(success.length > 0){ %>
+
+        <div class="fixed top-5 right-5 z-50">
+
+            <div class="rounded-xl bg-emerald-500 px-6 py-3 text-white shadow-lg">
+
+                <%= success %>
+
+            </div>
+
+        </div>
+
+    <% } %>
+
 
     <% if(error.length > 0){ %>
 
-    <div class="max-w-4xl mx-auto mt-5">
+        <div class="fixed top-5 right-5 z-50">
 
-    <div class="bg-red-100 text-red-700 p-4 rounded-lg">
+            <div class="rounded-xl bg-rose-500 px-6 py-3 text-white shadow-lg">
 
-        <%= error %>
+                <%= error %>
 
-    </div>
+            </div>
 
-    </div>
+        </div>
 
     <% } %>
 
-    <main class="flex-grow">
+
+    <!-- Page Content -->
+
+    <main class="flex-1">
+
         <%- body %>
+
     </main>
 
-    <%- include("../partials/footer") %>
+
+    <!-- Footer -->
+
+    <% if (!isAppPage) { %>
+
+        <%- include("../partials/footer") %>
+
+    <% } %>
+
 
 </body>
+
 </html>

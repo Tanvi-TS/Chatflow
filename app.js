@@ -36,6 +36,11 @@ app.use((req, res, next) => {
     next();
 });
 
+app.use((req, res, next) => {
+    res.locals.currentPath = req.path;
+    next();
+});
+
 // EJS Layouts
 app.use(expressLayouts);
 
@@ -46,9 +51,13 @@ app.set("layout", "layouts/main");
 
 const indexRoutes = require("./routes/indexRoutes");
 const authRoutes = require("./routes/authRoutes");
+const chatRoutes = require("./routes/chatRoutes");
+const messageRoutes = require("./routes/messageRoutes");
 
 app.use("/", indexRoutes);
 app.use("/", authRoutes);
+app.use("/chat", chatRoutes);
+app.use("/message", messageRoutes);
 
 const PORT = process.env.PORT || 3000;
 

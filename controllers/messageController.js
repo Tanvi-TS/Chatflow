@@ -18,9 +18,20 @@ exports.sendMessage = async (req, res) => {
             text: text.trim(),
         });
 
+        // Update last message
         await Chat.findByIdAndUpdate(chatId, {
             lastMessage: message._id,
         });
+
+        // Get sender information
+        const populatedMessage = await Message.findById(message._id)
+            .populate("sender", "name");
+
+        // Get Socket.IO instance
+        const io = req.app.get("io");
+
+        // Send message to everyone in this chat room
+        io.to(chatId).emit("newMessage", populatedMessage);
 
         res.redirect(`/chat/conversation/${chatId}`);
 
@@ -43,16 +54,18 @@ exports.getMessages = async (req, res) => {
         const messages = await Message.find({
             chat: chatId
         })
-            .sort({ createdAt: 1 })
-            .populate("sender", "name");
+        .populate("sender", "name")
+        .sort({ createdAt: 1 });
 
-        return messages;
+        res.json(messages);
 
     } catch (error) {
 
         console.log(error);
 
-        return [];
+        res.status(500).json({
+            message: "Unable to fetch messages."
+        });
 
     }
 };

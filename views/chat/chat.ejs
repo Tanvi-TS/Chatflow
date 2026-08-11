@@ -1,5 +1,9 @@
-<div class="h-screen flex flex-col bg-slate-50">
-
+<div
+    class="h-screen flex flex-col bg-slate-50"
+    data-chat-id="<%= chat._id %>"
+    data-user-id="<%= user._id.toString() %>"
+    data-receiver-id="<%= receiver._id.toString() %>"
+>
     <!-- Chat Header -->
     <%- include("./chatHeader") %>
 
@@ -12,3 +16,6 @@
     <%- include("./messageInput") %>
 
 </div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/js/socket.js"></script>

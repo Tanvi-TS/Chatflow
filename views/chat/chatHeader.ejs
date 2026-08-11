@@ -1,87 +1,68 @@
-<header class="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4">
+<header
+  class="flex items-center justify-between border-b border-slate-200 bg-white px-5 py-4"
+>
+  <div class="flex items-center gap-3">
+    <!-- Back Button -->
+    <a
+      href="/dashboard"
+      class="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-indigo-600 transition"
+      title="Back to dashboard"
+    >
+      <svg
+        class="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          stroke-width="2"
+          d="M15 19l-7-7 7-7"
+        />
+      </svg>
+    </a>
 
-    <div class="flex items-center gap-3">
-
-        <!-- Back Button -->
-        <a
-            href="/dashboard"
-            class="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-indigo-600 transition"
-            title="Back to dashboard"
-        >
-
-            <svg
-                class="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M15 19l-7-7 7-7"
-                />
-            </svg>
-
-        </a>
-
-
-        <!-- Receiver Avatar -->
-        <div class="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white">
-
-            <%= receiver.name.charAt(0).toUpperCase() %>
-
-        </div>
-
-
-        <!-- Receiver Info -->
-        <div>
-
-            <h2 class="text-sm font-semibold text-slate-800">
-                <%= receiver.name %>
-            </h2>
-
-            <div class="mt-0.5 flex items-center gap-1.5">
-
-                <span class="h-2 w-2 rounded-full bg-green-500"></span>
-
-                <p class="text-xs text-slate-500">
-                    Online
-                </p>
-
-            </div>
-
-        </div>
-
+    <!-- Receiver Avatar -->
+    <div
+      class="flex h-11 w-11 items-center justify-center rounded-full bg-indigo-600 text-sm font-semibold text-white"
+    >
+      <%= receiver.name.charAt(0).toUpperCase() %>
     </div>
 
+    <!-- Receiver Info -->
+    <div>
+      <h2 class="text-sm font-semibold text-slate-800"><%= receiver.name %></h2>
 
-    <!-- Chat Actions -->
-    <div class="flex items-center gap-1">
+      <div class="mt-0.5 flex items-center gap-1.5">
+        <span class="h-2 w-2 rounded-full bg-green-500"></span>
 
-        <button
-            type="button"
-            class="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-indigo-600 transition"
-            title="More options"
-        >
-
-            <svg
-                class="h-5 w-5"
-                fill="none"
-                stroke="currentColor"
-                viewBox="0 0 24 24"
-            >
-                <path
-                    stroke="currentColor"
-                    stroke-width="2"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    d="M12 6.5h.01M12 12h.01M12 17.5h.01"
-                />
-            </svg>
-
-        </button>
-
+        <p id="userStatus" class="text-sm text-slate-400">Offline</p>
+      </div>
     </div>
+  </div>
 
+  <!-- Chat Actions -->
+  <div class="flex items-center gap-1">
+    <button
+      type="button"
+      class="flex h-9 w-9 items-center justify-center rounded-lg text-slate-500 hover:bg-slate-100 hover:text-indigo-600 transition"
+      title="More options"
+    >
+      <svg
+        class="h-5 w-5"
+        fill="none"
+        stroke="currentColor"
+        viewBox="0 0 24 24"
+      >
+        <path
+          stroke="currentColor"
+          stroke-width="2"
+          stroke-linecap="round"
+          stroke-linejoin="round"
+          d="M12 6.5h.01M12 12h.01M12 17.5h.01"
+        />
+      </svg>
+    </button>
+  </div>
 </header>

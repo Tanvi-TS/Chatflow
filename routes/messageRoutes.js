@@ -11,4 +11,10 @@ router.post(
     messageController.sendMessage
 );
 
+router.get(
+    "/:chatId",
+    protect,
+    messageController.getMessages
+);
+
 module.exports = router;

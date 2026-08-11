@@ -29,7 +29,8 @@
     "express-ejs-layouts": "^2.5.1",
     "express-session": "^1.19.0",
     "jsonwebtoken": "^9.0.3",
-    "mongoose": "^9.7.4"
+    "mongoose": "^9.7.4",
+    "socket.io": "^4.8.3"
   },
   "devDependencies": {
     "@tailwindcss/cli": "^4.3.2",

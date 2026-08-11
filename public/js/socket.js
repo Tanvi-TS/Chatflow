@@ -20,10 +20,14 @@ socket.on("connect", () => {
 
     console.log("🟢 Connected to Socket.IO:", socket.id);
 
+    // Tell server that this user is online.
+    // Server gets the REAL userId from the JWT.
     if (currentUserId) {
-        socket.emit("userOnline", currentUserId);
+        socket.emit("userOnline");
     }
 
+    // Ask server to join this chat.
+    // Server will verify that the user belongs to it.
     if (chatId) {
         socket.emit("joinChat", chatId);
     }

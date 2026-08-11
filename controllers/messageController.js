@@ -1,3 +1,4 @@
+const mongoose = require("mongoose");
 const Message = require("../models/Message");
 const Chat = require("../models/Chat");
 
@@ -7,11 +8,48 @@ exports.sendMessage = async (req, res) => {
         const { chatId } = req.params;
         const { text } = req.body;
 
+        // Validate MongoDB chat ID
+        if (!mongoose.Types.ObjectId.isValid(chatId)) {
+            req.flash("error", "Invalid chat.");
+            return res.redirect("/dashboard");
+        }
+
+        // Validate message
         if (!text || text.trim() === "") {
             req.flash("error", "Message cannot be empty.");
             return res.redirect(`/chat/conversation/${chatId}`);
         }
 
+        // Maximum message length
+        if (text.trim().length > 2000) {
+            req.flash("error", "Message is too long.");
+            return res.redirect(`/chat/conversation/${chatId}`);
+        }
+
+        // Find chat
+        const chat = await Chat.findById(chatId);
+
+        if (!chat) {
+            req.flash("error", "Chat not found.");
+            return res.redirect("/dashboard");
+        }
+
+        // Check whether logged-in user belongs to this chat
+        const isParticipant = chat.participants.some(
+            participant =>
+                participant.toString() === req.user.userId.toString()
+        );
+
+        if (!isParticipant) {
+            req.flash(
+                "error",
+                "You are not authorized to send messages in this chat."
+            );
+
+            return res.redirect("/dashboard");
+        }
+
+        // Create message
         const message = await Message.create({
             chat: chatId,
             sender: req.user.userId,
@@ -22,16 +60,6 @@ exports.sendMessage = async (req, res) => {
         await Chat.findByIdAndUpdate(chatId, {
             lastMessage: message._id,
         });
-
-        // Get sender information
-        const populatedMessage = await Message.findById(message._id)
-            .populate("sender", "name");
-
-        // Get Socket.IO instance
-        const io = req.app.get("io");
-
-        // Send message to everyone in this chat room
-        io.to(chatId).emit("newMessage", populatedMessage);
 
         res.redirect(`/chat/conversation/${chatId}`);
 

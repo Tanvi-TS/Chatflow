@@ -3,9 +3,12 @@ const path = require("path");
 const dotenv = require("dotenv");
 const expressLayouts = require("express-ejs-layouts");
 const cookieParser = require("cookie-parser");
+const jwt = require("jsonwebtoken");
 
 const http = require("http");
 const { Server } = require("socket.io");
+
+const Chat = require("./models/Chat");
 
 dotenv.config();
 
@@ -21,40 +24,180 @@ app.set("io", io);
 
 const onlineUsers = new Map();
 
-io.on("connection", (socket) => {
-  console.log("🟢 User connected:", socket.id);
 
-  socket.on("userOnline", (userId) => {
-    const id = userId.toString();
+// ------------------------------------
+// Socket.IO Authentication
+// ------------------------------------
 
-    onlineUsers.set(id, socket.id);
+io.use((socket, next) => {
 
-    socket.broadcast.emit("userOnline", id);
+    try {
 
-    console.log(`🟢 User ${id} is online`);
-  });
+        const cookies = socket.handshake.headers.cookie;
 
-  socket.on("joinChat", (chatId) => {
-    socket.join(chatId);
+        if (!cookies) {
+            return next(new Error("Authentication required."));
+        }
 
-    console.log(`👥 ${socket.id} joined chat: ${chatId}`);
-  });
+        // Find token inside cookies
+        const tokenCookie = cookies
+            .split(";")
+            .find(cookie => cookie.trim().startsWith("token="));
 
-  socket.on("disconnect", () => {
-    console.log("🔴 User disconnected:", socket.id);
+        if (!tokenCookie) {
+            return next(new Error("Authentication required."));
+        }
 
-    for (const [userId, socketId] of onlineUsers.entries()) {
-      if (socketId === socket.id) {
-        onlineUsers.delete(userId);
+        const token = tokenCookie
+            .split("=")
+            .slice(1)
+            .join("=")
+            .trim();
 
-        socket.broadcast.emit("userOffline", userId);
+        // Verify JWT
+        const decoded = jwt.verify(
+            token,
+            process.env.JWT_SECRET
+        );
 
-        console.log(`🔴 User ${userId} is offline`);
+        // Store authenticated user on socket
+        socket.userId = decoded.userId.toString();
 
-        break;
-      }
+        next();
+
+    } catch (error) {
+
+        console.log("❌ Socket authentication failed.");
+
+        next(new Error("Invalid authentication."));
+
     }
-  });
+
+});
+
+
+// ------------------------------------
+// Socket.IO Connection
+// ------------------------------------
+
+io.on("connection", (socket) => {
+
+    console.log(
+        `🟢 User connected: ${socket.userId} | Socket: ${socket.id}`
+    );
+
+
+    // --------------------------------
+    // User Online
+    // --------------------------------
+
+    socket.on("userOnline", () => {
+
+        const userId = socket.userId;
+
+        onlineUsers.set(userId, socket.id);
+
+        socket.broadcast.emit("userOnline", userId);
+
+        console.log(`🟢 User ${userId} is online`);
+
+    });
+
+
+    // --------------------------------
+    // Join Chat
+    // --------------------------------
+
+    socket.on("joinChat", async (chatId) => {
+
+        try {
+
+            const chat = await Chat.findById(chatId);
+
+            if (!chat) {
+
+                console.log(
+                    `❌ Chat ${chatId} does not exist.`
+                );
+
+                return;
+
+            }
+
+
+            // Check whether authenticated user
+            // belongs to this chat
+
+            const isParticipant = chat.participants.some(
+                participant =>
+                    participant.toString() === socket.userId
+            );
+
+
+            if (!isParticipant) {
+
+                console.log(
+                    `🚫 User ${socket.userId} tried to join unauthorized chat ${chatId}`
+                );
+
+                return;
+
+            }
+
+
+            // User is authorized
+            socket.join(chatId);
+
+            console.log(
+                `👥 ${socket.userId} joined chat: ${chatId}`
+            );
+
+        } catch (error) {
+
+            console.log(
+                "❌ Error joining chat:",
+                error.message
+            );
+
+        }
+
+    });
+
+
+    // --------------------------------
+    // Disconnect
+    // --------------------------------
+
+    socket.on("disconnect", () => {
+
+        console.log(
+            `🔴 User disconnected: ${socket.userId}`
+        );
+
+
+        for (const [userId, socketId] of onlineUsers.entries()) {
+
+            if (socketId === socket.id) {
+
+                onlineUsers.delete(userId);
+
+                socket.broadcast.emit(
+                    "userOffline",
+                    userId
+                );
+
+                console.log(
+                    `🔴 User ${userId} is offline`
+                );
+
+                break;
+
+            }
+
+        }
+
+    });
+
 });
 
 connectDB();
@@ -68,11 +211,17 @@ const session = require("express-session");
 const flash = require("connect-flash");
 
 app.use(
-  session({
-    secret: "chatflow-secret",
-    resave: false,
-    saveUninitialized: false,
-  }),
+    session({
+        secret: process.env.SESSION_SECRET,
+        resave: false,
+        saveUninitialized: false,
+
+        cookie: {
+            httpOnly: true,
+            secure: process.env.NODE_ENV === "production",
+            sameSite: "lax"
+        }
+    }),
 );
 
 app.use(flash());
@@ -110,8 +259,35 @@ app.use("/message", messageRoutes);
 app.use("/profile", profileRoutes);
 app.use("/settings", settingsRoutes);
 
+
+// ------------------------------------
+// 404 - Page Not Found
+// ------------------------------------
+
+app.use((req, res) => {
+
+    res.status(404).render("404");
+
+});
+
+
+// ------------------------------------
+// Global Error Handler
+// ------------------------------------
+
+app.use((err, req, res, next) => {
+
+    console.error("❌ Server Error:", err);
+
+    req.flash("error", "Something went wrong.");
+
+    res.redirect("/");
+
+});
+
+
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
+    console.log(`Server running at http://localhost:${PORT}`);
 });

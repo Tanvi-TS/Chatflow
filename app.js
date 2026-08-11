@@ -16,6 +16,10 @@ const connectDB = require("./config/db");
 
 const app = express();
 
+if (process.env.NODE_ENV === "production") {
+  app.set("trust proxy", 1);
+}
+
 const server = http.createServer(app);
 
 const io = new Server(server);
@@ -24,180 +28,121 @@ app.set("io", io);
 
 const onlineUsers = new Map();
 
-
 // ------------------------------------
 // Socket.IO Authentication
 // ------------------------------------
 
 io.use((socket, next) => {
+  try {
+    const cookies = socket.handshake.headers.cookie;
 
-    try {
-
-        const cookies = socket.handshake.headers.cookie;
-
-        if (!cookies) {
-            return next(new Error("Authentication required."));
-        }
-
-        // Find token inside cookies
-        const tokenCookie = cookies
-            .split(";")
-            .find(cookie => cookie.trim().startsWith("token="));
-
-        if (!tokenCookie) {
-            return next(new Error("Authentication required."));
-        }
-
-        const token = tokenCookie
-            .split("=")
-            .slice(1)
-            .join("=")
-            .trim();
-
-        // Verify JWT
-        const decoded = jwt.verify(
-            token,
-            process.env.JWT_SECRET
-        );
-
-        // Store authenticated user on socket
-        socket.userId = decoded.userId.toString();
-
-        next();
-
-    } catch (error) {
-
-        console.log("❌ Socket authentication failed.");
-
-        next(new Error("Invalid authentication."));
-
+    if (!cookies) {
+      return next(new Error("Authentication required."));
     }
 
-});
+    // Find token inside cookies
+    const tokenCookie = cookies
+      .split(";")
+      .find((cookie) => cookie.trim().startsWith("token="));
 
+    if (!tokenCookie) {
+      return next(new Error("Authentication required."));
+    }
+
+    const token = tokenCookie.split("=").slice(1).join("=").trim();
+
+    // Verify JWT
+    const decoded = jwt.verify(token, process.env.JWT_SECRET);
+
+    // Store authenticated user on socket
+    socket.userId = decoded.userId.toString();
+
+    next();
+  } catch (error) {
+    console.log("❌ Socket authentication failed.");
+
+    next(new Error("Invalid authentication."));
+  }
+});
 
 // ------------------------------------
 // Socket.IO Connection
 // ------------------------------------
 
 io.on("connection", (socket) => {
+  console.log(`🟢 User connected: ${socket.userId} | Socket: ${socket.id}`);
 
-    console.log(
-        `🟢 User connected: ${socket.userId} | Socket: ${socket.id}`
-    );
+  // --------------------------------
+  // User Online
+  // --------------------------------
 
+  socket.on("userOnline", () => {
+    const userId = socket.userId;
 
-    // --------------------------------
-    // User Online
-    // --------------------------------
+    onlineUsers.set(userId, socket.id);
 
-    socket.on("userOnline", () => {
+    socket.broadcast.emit("userOnline", userId);
 
-        const userId = socket.userId;
+    console.log(`🟢 User ${userId} is online`);
+  });
 
-        onlineUsers.set(userId, socket.id);
+  // --------------------------------
+  // Join Chat
+  // --------------------------------
 
-        socket.broadcast.emit("userOnline", userId);
+  socket.on("joinChat", async (chatId) => {
+    try {
+      const chat = await Chat.findById(chatId);
 
-        console.log(`🟢 User ${userId} is online`);
+      if (!chat) {
+        console.log(`❌ Chat ${chatId} does not exist.`);
 
-    });
+        return;
+      }
 
+      // Check whether authenticated user
+      // belongs to this chat
 
-    // --------------------------------
-    // Join Chat
-    // --------------------------------
+      const isParticipant = chat.participants.some(
+        (participant) => participant.toString() === socket.userId,
+      );
 
-    socket.on("joinChat", async (chatId) => {
-
-        try {
-
-            const chat = await Chat.findById(chatId);
-
-            if (!chat) {
-
-                console.log(
-                    `❌ Chat ${chatId} does not exist.`
-                );
-
-                return;
-
-            }
-
-
-            // Check whether authenticated user
-            // belongs to this chat
-
-            const isParticipant = chat.participants.some(
-                participant =>
-                    participant.toString() === socket.userId
-            );
-
-
-            if (!isParticipant) {
-
-                console.log(
-                    `🚫 User ${socket.userId} tried to join unauthorized chat ${chatId}`
-                );
-
-                return;
-
-            }
-
-
-            // User is authorized
-            socket.join(chatId);
-
-            console.log(
-                `👥 ${socket.userId} joined chat: ${chatId}`
-            );
-
-        } catch (error) {
-
-            console.log(
-                "❌ Error joining chat:",
-                error.message
-            );
-
-        }
-
-    });
-
-
-    // --------------------------------
-    // Disconnect
-    // --------------------------------
-
-    socket.on("disconnect", () => {
-
+      if (!isParticipant) {
         console.log(
-            `🔴 User disconnected: ${socket.userId}`
+          `🚫 User ${socket.userId} tried to join unauthorized chat ${chatId}`,
         );
 
+        return;
+      }
 
-        for (const [userId, socketId] of onlineUsers.entries()) {
+      // User is authorized
+      socket.join(chatId);
 
-            if (socketId === socket.id) {
+      console.log(`👥 ${socket.userId} joined chat: ${chatId}`);
+    } catch (error) {
+      console.log("❌ Error joining chat:", error.message);
+    }
+  });
 
-                onlineUsers.delete(userId);
+  // --------------------------------
+  // Disconnect
+  // --------------------------------
 
-                socket.broadcast.emit(
-                    "userOffline",
-                    userId
-                );
+  socket.on("disconnect", () => {
+    console.log(`🔴 User disconnected: ${socket.userId}`);
 
-                console.log(
-                    `🔴 User ${userId} is offline`
-                );
+    for (const [userId, socketId] of onlineUsers.entries()) {
+      if (socketId === socket.id) {
+        onlineUsers.delete(userId);
 
-                break;
+        socket.broadcast.emit("userOffline", userId);
 
-            }
+        console.log(`🔴 User ${userId} is offline`);
 
-        }
-
-    });
-
+        break;
+      }
+    }
+  });
 });
 
 connectDB();
@@ -211,17 +156,17 @@ const session = require("express-session");
 const flash = require("connect-flash");
 
 app.use(
-    session({
-        secret: process.env.SESSION_SECRET,
-        resave: false,
-        saveUninitialized: false,
+  session({
+    secret: process.env.SESSION_SECRET,
+    resave: false,
+    saveUninitialized: false,
 
-        cookie: {
-            httpOnly: true,
-            secure: process.env.NODE_ENV === "production",
-            sameSite: "lax"
-        }
-    }),
+    cookie: {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === "production",
+      sameSite: "lax",
+    },
+  }),
 );
 
 app.use(flash());
@@ -259,35 +204,28 @@ app.use("/message", messageRoutes);
 app.use("/profile", profileRoutes);
 app.use("/settings", settingsRoutes);
 
-
 // ------------------------------------
 // 404 - Page Not Found
 // ------------------------------------
 
 app.use((req, res) => {
-
-    res.status(404).render("404");
-
+  res.status(404).render("404");
 });
-
 
 // ------------------------------------
 // Global Error Handler
 // ------------------------------------
 
 app.use((err, req, res, next) => {
+  console.error("❌ Server Error:", err);
 
-    console.error("❌ Server Error:", err);
+  req.flash("error", "Something went wrong.");
 
-    req.flash("error", "Something went wrong.");
-
-    res.redirect("/");
-
+  res.redirect("/");
 });
-
 
 const PORT = process.env.PORT || 3000;
 
 server.listen(PORT, () => {
-    console.log(`Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });

@@ -1,7 +1,7 @@
 {
   "name": "chatflow",
   "version": "1.0.0",
-  "description": "A real-time chat application built with MERN and Socket.IO.",
+  "description": "A full-stack real-time messaging application built with Node.js, Express, MongoDB, EJS, Tailwind CSS and Socket.IO.",
   "main": "index.js",
   "scripts": {
     "start": "node app.js",

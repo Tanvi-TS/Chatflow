@@ -2,7 +2,7 @@
 
 A full-stack real-time messaging application with secured WebSocket authentication, live presence tracking, and persistent chat history - built with **Node.js, Express.js, MongoDB, EJS, Tailwind CSS, and Socket.IO**.
 
-🔗 **Live Demo:** [ChatFlow](https://chatflow-uxsn.onrender.com/)
+🔗 **Live Demo:** [ChatFlow](https://chatflow-uxsn.onrender.com/) <br>
 📂 **Repository:** [GitHub](https://github.com/Tanvi-TS/Chatflow)
 
 [Features](#-features) • [Tech Stack](#️-tech-stack) • [Architecture](#️-architecture) • [Installation](#-installation) • [Project Structure](#-project-structure) • [API Endpoints](#-api-endpoints) • [Security](#-security-features) • [Future Enhancements](#-future-enhancements)
